@@ -48,3 +48,16 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+# All dependecies for dawnload 
+1.	npx create-expo-app@latest
+2.	npm i @react-native-async-storage/async-storage
+3.	npm i @shopify/flash-list
+4.	npm i expo-dev-client
+5.	npm i expo-device
+6.	npm i expo-image-picker
+7.	npm i expo-linear-gradient
+8.	npm i expo-location
+9.	npm i phosphor-react-native
+10. npm i react-native-element-dropdown
+11. npm install axios
