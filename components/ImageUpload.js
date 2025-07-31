@@ -5,7 +5,7 @@ import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import * as Icons from "phosphor-react-native";
 import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
-import Typo from "./Typo";
+import Typo from "@/components/Typo";
 
 const ImageUpload = ({
   file = null,

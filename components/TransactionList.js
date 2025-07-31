@@ -6,8 +6,8 @@ import { useRouter } from 'expo-router';
 import { Timestamp } from 'firebase/firestore';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import Loading from './Loading';
-import Typo from './Typo';
+import Loading from '@/components/Loading';
+import Typo from '@/components/Typo';
 
 const TransactionList = ({
   data,

@@ -1,13 +1,20 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
+    "baseUrl": ".",                // Sets the root directory
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"]               // Maps @/ to project root
     }
   },
   "include": [
+    "app",
+    "src",
+    ".expo/types/**/*.js",
     "**/*.js",
     "**/*.jsx",
-    ".expo/types/**/*.js"
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }

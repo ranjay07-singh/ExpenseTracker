@@ -1,5 +1,5 @@
 import axios from "axios";
-import { CLOUDNARY_CLOUD_NAME, CLOUDNARY_UPLOAD_PRESET } from "../constants";
+import { CLOUDNARY_CLOUD_NAME, CLOUDNARY_UPLOAD_PRESET } from "@/constants";
 
 const CLOUDNARY_API_URL = `https://api.cloudinary.com/v1_1/${CLOUDNARY_CLOUD_NAME}/image/upload`;
 

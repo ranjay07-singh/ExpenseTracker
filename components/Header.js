@@ -1,5 +1,5 @@
 import { StyleSheet, View } from "react-native";
-import Typo from "./Typo";
+import Typo from "@/components/Typo";
 
 const Header = ({ title = "", leftIcon, style }) => {
   return (

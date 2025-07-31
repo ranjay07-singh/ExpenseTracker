@@ -1,7 +1,7 @@
 import { colors, radius } from "@/constants/theme";
 import { verticalScale } from "@/utils/styling";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import Loading from "./Loading";
+import Loading from "@/components/Loading";
 
 const Button = ({
   style,

@@ -1,6 +1,6 @@
 import * as Location from 'expo-location';
 import { useEffect, useState } from 'react';
-import { financeTipsByState } from '../data';
+import { financeTipsByState } from '@/data';
 
 export const useFinanceTips = () => {
   const [tipsData, setTipsData] = useState(null);

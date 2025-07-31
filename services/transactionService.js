@@ -3,7 +3,7 @@ import { colors } from "@/constants/theme";
 import { getLast12Months, getLast7Days } from "@/utils/common";
 import { scale } from "@/utils/styling";
 import { collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, setDoc, Timestamp, updateDoc, where } from "firebase/firestore";
-import { createOrUpdateWallet } from "./walletService";
+import { createOrUpdateWallet } from "@/services/walletService";
 
 export const createOrUpdateTransaction = async (transactionData) => {
   try {

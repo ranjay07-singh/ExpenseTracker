@@ -1,5 +1,5 @@
 import { doc, updateDoc } from "firebase/firestore";
-import { firestore } from "../config/firebase";
+import { firestore } from "@/config/firebase";
 import {
   getFilePath,
   getProfileImage,

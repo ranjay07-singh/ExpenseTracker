@@ -4,7 +4,7 @@ import { Image } from "expo-image";
 import * as Icons from "phosphor-react-native";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import Typo from "./Typo";
+import Typo from "@/components/Typo";
 
 const WalletListItem = ({ item, index, router }) => {
   const openWallet = () => {
