@@ -1,3 +1,6 @@
+// /* eslint-disable import/first */
+// import 'react-native-reanimated'; // must be first import
+// /* eslint-enable import/first */
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { colors } from "@/constants/theme";
 import { useRouter } from "expo-router";

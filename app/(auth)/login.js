@@ -12,94 +12,104 @@ import React, { useState } from "react";
 import { Alert, Pressable, StyleSheet, View } from "react-native";
 
 const Login = () => {
-    
-    const emailRef = React.useRef("");
-    const passwordRef = React.useRef("");
-    const [isLoading, setIsLoading] = useState(false);
-    const router = useRouter(); 
-    const {login: loginUser} = useAuth();
+  const emailRef = React.useRef("");
+  const passwordRef = React.useRef("");
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const { login: loginUser } = useAuth();
 
-    const handleSubmit = async ()=>{
-        if(!emailRef.current || !passwordRef.current){
-            Alert.alert('Login', "Please fill all the fields");
-            return;
-        }
-        setIsLoading(true);
-        // Using values from refs
-        const res = await loginUser(emailRef.current, passwordRef.current);
-        setIsLoading(false);
-        if(!res.success){
-            Alert.alert('Login', res.msg || 'Login failed'); // Add fallback message
-        }
-        // Successful login is handled by the AuthProvider/authContext listener typically
-    };
+  const handleSubmit = async () => {
+    if (!emailRef.current || !passwordRef.current) {
+      Alert.alert("Login", "Please fill all the fields");
+      return;
+    }
+    try {
+      setIsLoading(true);
+      const res = await loginUser(emailRef.current, passwordRef.current);
+      setIsLoading(false);
 
-    // Function to handle navigation to Forgot Password
-    const goToForgotPassword = () => {
-       
-        router.push('/ForgotPassword');
-    };
+      if (!res.success) {
+        Alert.alert("Login", res.msg || "Login failed");
+      }
+    } catch (err) {
+      setIsLoading(false);
+      console.error("Login error:", err);
+      Alert.alert("Login Failed", err.message || "Something went wrong");
+    }
+  };
+
+  const goToForgotPassword = () => {
+    router.push("/(auth)/ForgotPassword");
+  };
 
   return (
     <ScreenWrapper>
       <View style={styles.container}>
         <BackButton iconSize={28} />
-        <View style={{gap: 5, marginTop: spacingY._20}}>
-        <Typo size={30} fontWeight={"800"} color={colors.textLight}>
+        <View style={{ gap: 5, marginTop: spacingY._20 }}>
+          <Typo size={30} fontWeight={"800"} color={colors.textLight}>
             Hey,
-        </Typo>
-        <Typo size={30} fontWeight={"800"} color={colors.textLight}>
+          </Typo>
+          <Typo size={30} fontWeight={"800"} color={colors.textLight}>
             Welcome Back!
-        </Typo>
+          </Typo>
         </View>
+
         {/* form */}
         <View style={styles.form}>
-            <Typo size={20} color={colors.textLighter}>
-                Login Now to track your expenses
-            </Typo>
-            <Input placeholder="Enter your email"
+          <Typo size={20} color={colors.textLighter}>
+            Login Now to track your expenses
+          </Typo>
+          <Input
+            placeholder="Enter your email"
             onChangeText={(value) => (emailRef.current = value)}
-            keyboardType="email-address" 
-            autoCapitalize="none" 
-            icon={<Icons.At
-            size={verticalScale(26)}
-            color={colors.neutral300}
-            weight="fill"
-            />
+            keyboardType="email-address"
+            autoCapitalize="none"
+            icon={
+              <Icons.At
+                size={verticalScale(26)}
+                color={colors.neutral300}
+                weight="fill"
+              />
             }
-            />
-            <Input placeholder="Enter your password"
+          />
+          <Input
+            placeholder="Enter your password"
             secureTextEntry
             onChangeText={(value) => (passwordRef.current = value)}
-            icon={<Icons.Lock
-            size={verticalScale(26)}
-            color={colors.neutral300}
-            weight="fill"
-            />
+            icon={
+              <Icons.Lock
+                size={verticalScale(26)}
+                color={colors.neutral300}
+                weight="fill"
+              />
             }
-            />
+          />
 
-            {/* --- FIX START: Make "Forgot Password?" pressable --- */}
-            <Pressable onPress={goToForgotPassword} style={{ alignSelf: 'flex-end' }}>
-                <Typo size={14} color={colors.text}>
-                    Forgot Password?
-                </Typo>
-            </Pressable>
-            {/* --- FIX END --- */}
-            <Button loading={isLoading} onPress={handleSubmit}>
-                <Typo fontWeight={'700'} color={colors.black} size={21}>
-                    Login
-                </Typo>
-            </Button>
-            </View>
+          {/* Forgot password */}
+          <Pressable onPress={goToForgotPassword} style={{ alignSelf: "flex-end" }}>
+            <Typo size={14} color={colors.text}>
+              Forgot Password?
+            </Typo>
+          </Pressable>
 
+          <Button loading={isLoading} onPress={handleSubmit}>
+            <Typo fontWeight={"700"} color={colors.black} size={21}>
+              Login
+            </Typo>
+          </Button>
+        </View>
+
+        {/* footer */}
         <View style={styles.footer}>
-            <Typo size={15} color={colors.textLight}> Don't have an account? </Typo>
-            <Pressable onPress={()=> router.push("/register")}>
-                <Typo size={15} fontWeight={'700'} color={colors.primary}>
-                    Sign up
-                </Typo>
-            </Pressable>
+          <Typo size={15} color={colors.textLight}>
+            Don't have an account?
+          </Typo>
+          <Pressable onPress={() => router.push("/(auth)/register")}>
+            <Typo size={15} fontWeight={"700"} color={colors.primary}>
+              Sign up
+            </Typo>
+          </Pressable>
         </View>
       </View>
     </ScreenWrapper>
@@ -114,26 +124,15 @@ const styles = StyleSheet.create({
     gap: spacingY._30,
     paddingHorizontal: spacingX._20,
   },
-  welcomeText: { 
-    fontSize: verticalScale(20),
-    fontWeight: "bold",
-    color: colors.text,
-  },
   form: {
     gap: spacingY._20,
   },
-
-footer: {
+  footer: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     gap: 5,
-    marginTop: 'auto', 
-    paddingBottom: spacingY._20
-},
-footerText: { 
-    textAlign: "center",
-    color: colors.text,
-    fontSize: verticalScale(15),
-},
+    marginTop: "auto",
+    paddingBottom: spacingY._20,
+  },
 });

@@ -6,7 +6,7 @@ import ModalWrapper from '@/components/ModalWrapper';
 import Typo from '@/components/Typo';
 import { colors, spacingX, spacingY } from '@/constants/theme';
 import { useAuth } from '@/contexts/authContext';
-import { getProfileImage } from '@/services/imageService';
+import { getProfileImage, uploadFileToCloudinary } from '@/services/imageService';
 import { updateUser } from '@/services/userService';
 import { scale, verticalScale } from '@/utils/styling';
 import { Image } from 'expo-image';
@@ -18,56 +18,83 @@ import { Alert, StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView, ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 
 const ProfileModal = () => {
+  const { user, updateUserData } = useAuth();
+  const [userData, setUserData] = useState({ 
+    name: "",
+    image: null
+  });
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-    const {user, updateUserData}= useAuth();
-    const [userData, setUserData] = useState({ 
-        name: "",
-        image: null
+  useEffect(() => {
+    setUserData({
+      name: user?.name || "",
+      image: user?.image || null
     });
-    const [loading, setLoading] = useState(false);
-    const router =useRouter();
+  }, [user]);
 
-    useEffect(()=>{
-        setUserData({
-            name: user?.name || "",
-            image: user?.image || null
-        });
-    }, [user]);
+  const onPickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images, 
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.5,
+    });
 
-    const onPickImage = async () => {
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images, 
-            allowsEditing: true,
-            aspect: [4, 3],
-            quality: 0.5,
-          });
+    if (!result.canceled) {
+      setUserData({ ...userData, image: result.assets[0] });
+    }
+  };
 
-        console.log(result);
+  const onSubmit = async () => {
+    let { name, image } = userData;
 
-        if (!result.canceled) {
-            setUserData({...userData, image: result.assets[0]});
+    if (!name.trim()) {
+      Alert.alert("User", "Please fill all the fields");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      let imageUrl = null;
+
+      // If new image picked (object with uri) → upload to Cloudinary
+      if (image && typeof image === "object" && image.uri) {
+        const uploadRes = await uploadFileToCloudinary(image, "users");
+        if (uploadRes.success) {
+          imageUrl = uploadRes.data; // secure_url
+        } else {
+          throw new Error(uploadRes.msg || "Image upload failed");
         }
-      };
+      } 
+      // If already a Cloudinary URL → reuse it
+      else if (typeof image === "string") {
+        imageUrl = image;
+      }
 
-    const onSubmit = async () => {
-        let {name, image} = userData;
-        if(!name.trim()){
-            Alert.alert("User", "Please fill all the fields");
-            return;
-        }
-        setLoading(true);
-        const res = await updateUser(user?.uid, userData);
-        setLoading(false);
-        if(res.success){
-            updateUserData(user?.uid);
-            router.back();
-        }
-        else{
-            Alert.alert("User", res.msg);
-        }
-    };
-    return (
-    <GestureHandlerRootView style={{flex: 1}}>
+      // Update Firestore
+      const res = await updateUser(user?.uid, {
+        name,
+        image: imageUrl,
+      });
+
+      if (res.success) {
+        updateUserData(user?.uid); // refresh context
+        router.back();
+      } else {
+        Alert.alert("User", res.msg);
+      }
+    } catch (error) {
+      console.log("Profile update error:", error);
+      Alert.alert("User", error.message);
+    }
+
+    setLoading(false);
+  };
+
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <ModalWrapper>
         <View style={styles.container}>
           <Header
@@ -86,74 +113,74 @@ const ProfileModal = () => {
               />
               <TouchableOpacity onPress={onPickImage} style={styles.editIcon}>
                 <Icons.Pencil
-                size={verticalScale(20)}
-                color={colors.neutral800}
+                  size={verticalScale(20)}
+                  color={colors.neutral800}
                 />
               </TouchableOpacity>
             </View>
             <View style={styles.inputContainer}>
-                <Typo color={ colors.neutral200}>Name</Typo>
-                <Input
+              <Typo color={colors.neutral200}>Name</Typo>
+              <Input
                 placeholder="Name"
                 value={userData.name}
                 onChangeText={(value) =>
-                    setUserData({...userData, name: value})
+                  setUserData({ ...userData, name: value })
                 }
-                />
+              />
             </View>
           </ScrollView>
         </View>
         <View style={styles.footer}>
-            <Button onPress={onSubmit} loading={loading} style={{flex: 1}}>
-                <Typo color={colors.black} fontWeight={"700"}>
-                    Update
-                </Typo>
-            </Button>
+          <Button onPress={onSubmit} loading={loading} style={{ flex: 1 }}>
+            <Typo color={colors.black} fontWeight={"700"}>
+              Update
+            </Typo>
+          </Button>
         </View>
       </ModalWrapper>
-      </GestureHandlerRootView>
-    );
-  };
+    </GestureHandlerRootView>
+  );
+};
 
 export default ProfileModal;
 
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      justifyContent: "space-between",
-      paddingHorizontal: spacingX._20,
-    },
-    footer: {
-        alignItems: "center",
-        flexDirection: "row",
-        justifyContent: "center",
-        paddingHorizontal: spacingX._20,
-        gap: scale(12),
-        paddingTop: spacingY._15,
-        borderTopColor: colors.neutral700,
-        marginBottom: spacingY._5,
-        borderTopWidth: 1,
-    },
-    form:{
-        gap:spacingY._30,
-        marginTop:spacingY._15
-    },
-    avatarContainer: {
-      position: "relative",
-      alignSelf: "center",
-    },
-    avatar: {
-      alignSelf: "center",
-      backgroundColor: colors.neutral300,
-      height: verticalScale(135),
-      width: verticalScale(135),
-      borderRadius: 200,
-    },
-    editIcon: {
-      position: "absolute",
-      bottom: spacingY._5,
-      right: spacingY._7,
-      borderRadius: 100,
+  container: {
+    flex: 1,
+    justifyContent: "space-between",
+    paddingHorizontal: spacingX._20,
+  },
+  footer: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "center",
+    paddingHorizontal: spacingX._20,
+    gap: scale(12),
+    paddingTop: spacingY._15,
+    borderTopColor: colors.neutral700,
+    marginBottom: spacingY._5,
+    borderTopWidth: 1,
+  },
+  form: {
+    gap: spacingY._30,
+    marginTop: spacingY._15
+  },
+  avatarContainer: {
+    position: "relative",
+    alignSelf: "center",
+  },
+  avatar: {
+    alignSelf: "center",
+    backgroundColor: colors.neutral300,
+    height: verticalScale(135),
+    width: verticalScale(135),
+    borderRadius: 200,
+  },
+  editIcon: {
+    position: "absolute",
+    bottom: spacingY._5,
+    right: spacingY._7,
+    borderRadius: 100,
     backgroundColor: colors.neutral100,
     shadowColor: colors.black,
     shadowOffset: { width: 0, height: 0 },
@@ -161,8 +188,8 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 4,
     padding: spacingY._7,
-    },
-    inputContainer: {
-        gap: spacingY._10,
-    },
-    });
+  },
+  inputContainer: {
+    gap: spacingY._10,
+  },
+});
